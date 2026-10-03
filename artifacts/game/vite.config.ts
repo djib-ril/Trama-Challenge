@@ -6,12 +6,8 @@ import runtimeErrorOverlay from "@replit/vite-plugin-runtime-error-modal";
 
 const rawPort = process.env.PORT;
 
-if (!rawPort) {
-  throw new Error(
-    "PORT environment variable is required but was not provided.",
-  );
-}
-
+// Allow PORT to default to 5173 if not explicitly provided
+const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 5173;
 const port = Number(rawPort);
 
 if (Number.isNaN(port) || port <= 0) {
