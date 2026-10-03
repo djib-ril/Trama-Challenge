@@ -1,0 +1,214 @@
+Create a complete advanced multiplayer educational battle game using Node.js, Express, Socket.io, HTML, CSS, and JavaScript.
+
+The project must run fully in Replit using:
+npm install express socket.io
+npm start
+
+The game must support frontend and backend together.
+
+GAME NAME:
+"Ultimate Brain Battle"
+
+MAIN SYSTEM:
+
+1. Multiplayer realtime rooms using Socket.io.
+
+2. Room Creator / Host System:
+   The player who creates the room becomes the HOST.
+
+The host can:
+
+* choose game category
+* choose topic
+* choose timer duration in minutes
+* choose difficulty
+* choose random mode
+* start game
+* skip questions
+* restart game
+* end game
+
+3. Categories:
+   Allow users to choose categories such as:
+
+* Mathematics
+* Physics
+* Chemistry
+* Biology
+* Geography
+* Technology
+* Coding
+* Logic
+* History
+* General Knowledge
+
+4. Topic Selection:
+   Each category should contain topics.
+
+Examples:
+
+Mathematics:
+
+* Algebra
+* Geometry
+* Calculus
+* Probability
+* Trigonometry
+
+Physics:
+
+* Mechanics
+* Electricity
+* Magnetism
+* Thermodynamics
+* Waves
+
+Biology:
+
+* Cells
+* Genetics
+* Human Body
+* Evolution
+
+Chemistry:
+
+* Periodic Table
+* Organic Chemistry
+* Chemical Reactions
+* Acids and Bases
+
+5. Random Mode:
+   Allow host to select:
+
+* Random Category
+* Random Topic
+* Chaos Mode (everything random)
+
+6. Timer Settings:
+   The room creator can choose:
+
+* 30 seconds
+* 1 minute
+* 2 minutes
+* 5 minutes
+* custom timer
+
+7. Question Types:
+   Include:
+
+* Multiple choice
+* True/False
+* Typing answer
+* Puzzle mode
+* Speed challenge
+
+8. Gameplay:
+
+* Questions appear live to all players
+* Players answer before timer ends
+* Correct answers earn points
+* Faster answers earn bonus points
+
+9. Live Leaderboard:
+   Update scores in realtime.
+
+10. Final Podium:
+    Display:
+    🥇 1st place
+    🥈 2nd place
+    🥉 3rd place
+
+11. UI Design:
+    Create a modern futuristic design with:
+
+* animations
+* glowing buttons
+* responsive mobile layout
+* smooth transitions
+* dark neon theme
+
+12. Lobby Features:
+    Show:
+
+* room code
+* connected players
+* selected category
+* selected topic
+* timer setting
+* difficulty level
+
+13. Difficulty Modes:
+
+* Easy
+* Medium
+* Hard
+* Expert
+
+14. Sound Effects:
+
+* countdown sound
+* correct answer sound
+* wrong answer sound
+* victory sound
+
+15. Anti-Cheat:
+
+* prevent multiple answers
+* lock answers after submission
+* prevent timer abuse
+
+16. Question Database:
+    Create many sample questions for:
+
+* math
+* physics
+* biology
+* chemistry
+* coding
+* geography
+
+17. Bonus Features:
+    Add:
+
+* streak bonuses
+* fastest answer bonus
+* XP system
+* rank titles
+
+18. Game Modes:
+
+* Solo Practice
+* Team Battle
+* Endless Mode
+* Tournament Mode
+* Survival Mode
+
+19. Notifications:
+    Show live notifications:
+
+* Player joined
+* New leader
+* Correct answer
+* Time almost over
+
+20. Code Requirements:
+
+* beginner friendly
+* heavily commented
+* clean structure
+* optimized for Replit
+
+21. Generate COMPLETE WORKING CODE.
+
+22. Keep setup simple for beginners.
+
+23. Include backend and frontend fully connected.
+
+24. The host should be the only person allowed to:
+
+* change categories
+* change topic
+* change timer
+* start game
+
+25. Add a room code system so friends can join specific rooms.

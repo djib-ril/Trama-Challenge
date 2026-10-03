@@ -1,0 +1,318 @@
+# Upgrade Existing Website into T Trama Challenge
+
+I already have an existing website. **Do not rebuild it from scratch.** First inspect the existing codebase, understand the current architecture, and improve the existing application while preserving working features and the current design where appropriate.
+
+The goal is to turn the website into **T Trama Challenge**, an interactive quiz platform designed to support a **24/7 automated YouTube livestream**.
+
+## 1. User Authentication
+
+Add a complete login and registration system.
+
+Users should be able to:
+
+* Create an account
+* Log in
+* Log out
+* Stay logged in across sessions
+* Reset/forgot their password
+* Have their account information securely stored
+* Access protected pages only after authentication
+
+Use secure password hashing and proper session/token management. Never store plain-text passwords.
+
+Create at least these roles:
+
+### Admin
+
+Admins can:
+
+* Access the dashboard
+* Create, edit, delete, duplicate, and organize quizzes
+* Create questions and answers
+* Set correct answers
+* Set question timers
+* Start/stop challenges
+* Manage the livestream settings
+* See players currently connected
+* See scores and rankings
+* Control the automatic quiz playlist
+* Configure the YouTube livestream integration
+
+### Player
+
+Players can:
+
+* Log in or join a challenge as a guest if enabled
+* Enter the game code shown on the livestream
+* Join the current live quiz
+* Answer questions from their phone
+* See whether their answer was correct
+* See their score
+* See rankings/leaderboards
+
+## 2. Admin Dashboard
+
+Create a clean admin dashboard for **T Trama Challenge**.
+
+The dashboard should include:
+
+* Overview
+* Quiz Manager
+* Question Manager
+* Live Challenge
+* Players
+* Leaderboard
+* YouTube/Streaming Settings
+* Account Settings
+
+The admin should be able to create multiple quizzes.
+
+Each quiz should support:
+
+* Quiz name
+* Description
+* Thumbnail/image if supported
+* Multiple questions
+* Multiple answer choices
+* Correct answer
+* Time limit per question
+* Points
+* Optional difficulty
+* Quiz ordering
+* Enable/disable quiz
+
+Allow admins to easily reorder quizzes and questions.
+
+## 3. Live Quiz System
+
+Build a real-time quiz system.
+
+When an admin starts a challenge:
+
+1. Generate a unique game code.
+2. Display the code prominently on the host/stream screen.
+3. Players enter that code on the website.
+4. Players join the active game.
+5. The current question appears on the host screen.
+6. The same question appears on the player's phone.
+7. A countdown timer runs in real time.
+8. Players submit answers.
+9. Prevent players from submitting multiple answers for the same question.
+10. Lock answers when the timer expires.
+11. Calculate scores automatically.
+12. Display the correct answer/results.
+13. Display rankings.
+14. Automatically move to the next question.
+
+Use WebSockets or another appropriate real-time technology so that updates happen without users refreshing the page.
+
+## 4. Game Code
+
+The host screen should show something like:
+
+**T TRAMA CHALLENGE**
+
+**JOIN CODE: 482917**
+
+**ttrama.com/join**
+
+The code should identify the currently active game.
+
+Players should be able to enter the code from their phones and immediately join the active challenge.
+
+The system should handle multiple players joining simultaneously.
+
+## 5. Automatic 24/7 Quiz Mode
+
+Add an **Auto Play / 24/7 Mode**.
+
+Admins should be able to create a playlist such as:
+
+Quiz 1 → Quiz 2 → Quiz 3 → Quiz 4 → Quiz 1 → ...
+
+When 24/7 mode is enabled:
+
+* Automatically start the first quiz
+* Run every question
+* Show results
+* Automatically start the next quiz
+* Continue through the playlist
+* Automatically restart from the beginning when the playlist ends
+* Require no manual intervention
+
+If the server restarts, the system should be able to recover the active playlist/game state where practical.
+
+Add controls:
+
+* Start 24/7 Mode
+* Pause
+* Resume
+* Stop
+* Skip Quiz
+* Skip Question
+* Restart Current Quiz
+
+## 6. YouTube Livestream Integration
+
+Design the system so the **host/game screen can be continuously broadcast to YouTube Live**.
+
+The livestream should show:
+
+* T Trama Challenge branding
+* Current question
+* Answer choices
+* Countdown
+* Game code
+* Player count
+* Correct answer/results
+* Leaderboard
+* Next-question transitions
+
+The interactive functionality should remain on our website, while YouTube acts as the broadcast platform.
+
+Create a YouTube settings page where an admin can configure the necessary YouTube Live credentials/stream settings securely.
+
+Do not expose API keys, stream keys, or other secrets in frontend code.
+
+## 7. Stream-Friendly Host Screen
+
+Create a dedicated `/host` or equivalent page designed specifically for streaming.
+
+It should be visually attractive and readable on YouTube.
+
+Use large text and clear animations for:
+
+* Question
+* Answers
+* Timer
+* Join code
+* Correct answer
+* Leaderboard
+* Transitions
+
+It should work well in a 16:9 livestream layout.
+
+Do not display private player information on the public stream.
+
+## 8. Player Interface
+
+Create a mobile-first `/join` experience.
+
+A player should be able to:
+
+1. Open the website.
+2. Enter the game code.
+3. Enter their display name.
+4. Join the game.
+5. Wait for the next question.
+6. Select an answer.
+7. Receive immediate feedback after the question ends.
+8. See their score and ranking.
+
+Make the interface extremely simple because most players will use phones while watching YouTube on another screen.
+
+## 9. Leaderboards
+
+Implement:
+
+* Current question results
+* Current quiz leaderboard
+* Overall session leaderboard
+
+Show rankings clearly on the host/stream screen.
+
+Allow the admin to reset scores when starting a new session.
+
+## 10. Database
+
+Use the existing database if the project already has one.
+
+If database functionality is missing, implement an appropriate persistent database.
+
+The database should support at minimum:
+
+* Users
+* Roles
+* Quizzes
+* Questions
+* Answers
+* Active games
+* Players
+* Player answers
+* Scores
+* Quiz playlists
+* Livestream configuration
+* Game/session history
+
+Use proper relationships and indexes.
+
+## 11. Security
+
+Security is important.
+
+Implement:
+
+* Secure authentication
+* Password hashing
+* Authorization based on user roles
+* Protected admin routes
+* Server-side validation
+* Input sanitization
+* Rate limiting where appropriate
+* Protection against duplicate answers
+* Protection against players changing their scores
+* Never expose secrets/API keys to the browser
+* Environment variables for sensitive credentials
+
+Do not trust scores, correct answers, timers, or game state sent from the client. The server should be authoritative.
+
+## 12. Existing Website
+
+Before making changes:
+
+1. Inspect the entire existing project.
+2. Identify the current frontend/backend/database architecture.
+3. Identify existing authentication, if any.
+4. Reuse existing components and infrastructure where possible.
+5. Preserve existing functionality.
+6. Do not unnecessarily change the visual design.
+7. Avoid breaking existing routes or features.
+8. Only introduce new dependencies when necessary.
+
+After implementation, test the existing features as well as all new functionality.
+
+## 13. UI Branding
+
+Use the new name:
+
+# T Trama Challenge
+
+Create a modern, energetic quiz-show style interface.
+
+The branding should work consistently across:
+
+* Login
+* Registration
+* Admin dashboard
+* Player interface
+* Host screen
+* Quiz pages
+* Leaderboards
+* Livestream screen
+
+## 14. Deliverables
+
+After implementing the changes, provide:
+
+* A summary of what was changed
+* All new routes/pages
+* Database changes
+* Environment variables that need to be configured
+* How to create an admin account
+* How to create a quiz
+* How to start a live challenge
+* How to enable 24/7 mode
+* How to connect YouTube Live
+* How to test the system with multiple players
+
+Most importantly: **work with the existing application rather than replacing it. Inspect first, then implement the upgrade.**

@@ -1,0 +1,502 @@
+const express = require("express");
+const http = require("http");
+const { Server } = require("socket.io");
+
+const app = express();
+
+const server = http.createServer(app);
+
+const io = new Server(server);
+
+
+// ================= HTML PAGE =================
+
+const html = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+<title>Summary Challenge</title>
+
+<style>
+
+body{
+  font-family: Arial;
+  background:#46178f;
+  color:white;
+  text-align:center;
+  margin:0;
+  padding:20px;
+}
+
+.container{
+  max-width:700px;
+  margin:auto;
+  background:#33106b;
+  padding:30px;
+  border-radius:10px;
+}
+
+h1{
+  color:orange;
+}
+
+.hidden{
+  display:none;
+}
+
+input,
+textarea{
+  width:80%;
+  padding:12px;
+  margin-top:10px;
+  border:none;
+  border-radius:5px;
+}
+
+textarea{
+  height:120px;
+}
+
+button{
+  padding:12px 20px;
+  margin-top:15px;
+  background:#250b50;
+  color:white;
+  border:2px solid white;
+  cursor:pointer;
+}
+
+button:hover{
+  background:white;
+  color:#46178f;
+}
+
+#passageBox{
+  background:white;
+  color:black;
+  padding:20px;
+  border-radius:8px;
+  margin-top:20px;
+  text-align:left;
+}
+
+#timer{
+  font-size:2rem;
+  color:#ff3366;
+  margin-bottom:20px;
+}
+
+.leaderboard-item{
+  background:rgba(255,255,255,0.1);
+  margin:10px 0;
+  padding:12px;
+  border-radius:5px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+  <!-- LOBBY -->
+
+  <div id="lobbyScreen">
+
+    <h1>Summary Challenge</h1>
+
+    <input
+      type="text"
+      id="username"
+      placeholder="Enter nickname"
+      maxlength="15"
+    />
+
+    <br>
+
+    <button onclick="joinGame()">
+      Join Lobby
+    </button>
+
+    <h3>Players Waiting:</h3>
+
+    <ul id="playerList"></ul>
+
+    <button
+      id="startBtn"
+      class="hidden"
+      onclick="startGame()"
+    >
+      Start Game
+    </button>
+
+  </div>
+
+
+  <!-- GAME -->
+
+  <div id="gameScreen" class="hidden">
+
+    <div id="timer">120s</div>
+
+    <div id="passageBox"></div>
+
+    <textarea
+      id="summaryInput"
+      placeholder="Write your summary here..."
+    ></textarea>
+
+    <br>
+
+    <button
+      id="submitBtn"
+      onclick="submitSummary()"
+    >
+      Submit Summary
+    </button>
+
+  </div>
+
+
+  <!-- LEADERBOARD -->
+
+  <div id="leaderboardScreen" class="hidden">
+
+    <h1>🏆 Final Rankings 🏆</h1>
+
+    <div id="podium"></div>
+
+    <button onclick="location.reload()">
+      Play Again
+    </button>
+
+  </div>
+
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+
+<script>
+
+const socket = io();
+
+
+// JOIN GAME
+
+function joinGame(){
+
+  const name =
+    document.getElementById("username")
+    .value
+    .trim();
+
+  if(!name){
+    return alert("Enter nickname");
+  }
+
+  socket.emit("joinGame", name);
+
+  document.getElementById("username")
+    .disabled = true;
+
+  document.getElementById("startBtn")
+    .classList.remove("hidden");
+}
+
+
+// START GAME
+
+function startGame(){
+  socket.emit("startGame");
+}
+
+
+// SUBMIT SUMMARY
+
+function submitSummary(){
+
+  const text =
+    document.getElementById("summaryInput")
+    .value
+    .trim();
+
+  if(!text){
+    return alert("Write a summary first");
+  }
+
+  socket.emit("submitSummary", text);
+
+  document.getElementById("submitBtn")
+    .disabled = true;
+
+  document.getElementById("summaryInput")
+    .disabled = true;
+}
+
+
+// UPDATE PLAYERS
+
+socket.on("updatePlayers", (players)=>{
+
+  const list =
+    document.getElementById("playerList");
+
+  list.innerHTML =
+    players.map(
+      p => "<li>" + p + "</li>"
+    ).join("");
+
+});
+
+
+// GAME STARTED
+
+socket.on("gameStarted", (passage)=>{
+
+  document.getElementById("lobbyScreen")
+    .classList.add("hidden");
+
+  document.getElementById("gameScreen")
+    .classList.remove("hidden");
+
+  document.getElementById("passageBox")
+    .innerText = passage;
+
+});
+
+
+// TIMER
+
+socket.on("timerUpdate", (timeLeft)=>{
+
+  document.getElementById("timer")
+    .innerText = timeLeft + "s";
+
+  if(timeLeft <= 0){
+
+    document.getElementById("summaryInput")
+      .disabled = true;
+
+    document.getElementById("submitBtn")
+      .disabled = true;
+  }
+
+});
+
+
+// GAME OVER
+
+socket.on("gameOver", (leaderboard)=>{
+
+  document.getElementById("gameScreen")
+    .classList.add("hidden");
+
+  document.getElementById("leaderboardScreen")
+    .classList.remove("hidden");
+
+  const podium =
+    document.getElementById("podium");
+
+  podium.innerHTML =
+    leaderboard.map((player,index)=>{
+
+      return \`
+        <div class="leaderboard-item">
+          #\${index + 1}
+          \${player.name}
+          -
+          \${player.score} pts
+        </div>
+      \`;
+
+    }).join("");
+
+});
+
+</script>
+
+</body>
+</html>
+`;
+
+
+// ================= ROUTE =================
+
+app.get("/", (req, res) => {
+  res.send(html);
+});
+
+
+// ================= GAME STATE =================
+
+let gameState = {
+
+  passage:
+    "Artificial Intelligence is transforming society through healthcare, logistics, automation, and technology innovation. Ethical concerns like privacy, bias, and regulation must be carefully managed.",
+
+  players: {},
+
+  timer: 120,
+
+  isGameActive: false
+};
+
+
+// ================= SOCKET.IO =================
+
+io.on("connection", (socket) => {
+
+  console.log("Player connected");
+
+
+  // JOIN
+
+  socket.on("joinGame", (username) => {
+
+    gameState.players[socket.id] = {
+      name: username,
+      score: 0,
+      summary: ""
+    };
+
+    io.emit(
+      "updatePlayers",
+      Object.values(gameState.players)
+        .map(p => p.name)
+    );
+
+  });
+
+
+  // START GAME
+
+  socket.on("startGame", () => {
+
+    if(!gameState.isGameActive){
+
+      gameState.isGameActive = true;
+
+      io.emit(
+        "gameStarted",
+        gameState.passage
+      );
+
+      startCountdown();
+    }
+
+  });
+
+
+  // SUBMIT SUMMARY
+
+  socket.on("submitSummary", (summary) => {
+
+    if(!gameState.players[socket.id]){
+      return;
+    }
+
+    gameState.players[socket.id]
+      .summary = summary;
+
+    const keywords = [
+      "artificial",
+      "healthcare",
+      "automation",
+      "privacy",
+      "bias",
+      "regulation"
+    ];
+
+    let score = 0;
+
+    const cleanSummary =
+      summary.toLowerCase();
+
+    keywords.forEach((word)=>{
+
+      if(cleanSummary.includes(word)){
+        score += 25;
+      }
+
+    });
+
+    const wordCount =
+      summary
+      .split(/\\s+/)
+      .filter(Boolean)
+      .length;
+
+    if(wordCount >= 15 && wordCount <= 40){
+      score += 50;
+    }
+
+    gameState.players[socket.id]
+      .score = score;
+
+  });
+
+
+  // DISCONNECT
+
+  socket.on("disconnect", ()=>{
+
+    delete gameState.players[socket.id];
+
+    io.emit(
+      "updatePlayers",
+      Object.values(gameState.players)
+        .map(p => p.name)
+    );
+
+  });
+
+});
+
+
+// ================= TIMER =================
+
+function startCountdown(){
+
+  let timeLeft = gameState.timer;
+
+  const interval = setInterval(()=>{
+
+    timeLeft--;
+
+    io.emit("timerUpdate", timeLeft);
+
+    if(timeLeft <= 0){
+
+      clearInterval(interval);
+
+      gameState.isGameActive = false;
+
+      const leaderboard =
+        Object.values(gameState.players)
+        .sort((a,b)=> b.score - a.score);
+
+      io.emit("gameOver", leaderboard);
+
+    }
+
+  },1000);
+
+}
+
+
+// ================= START SERVER =================
+
+const PORT = process.env.PORT || 3000;
+
+server.listen(PORT, ()=>{
+
+  console.log(
+    "Server running on port " + PORT
+  );
+
+});
